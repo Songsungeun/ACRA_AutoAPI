@@ -1,0 +1,9 @@
+{"RuleBlackOrWhite":"1",
+"ValidWeekDays":"1111111",
+"ValidtoDate":"",
+"ValidHours":"111111111111111111111111",
+"UserID":"acrauser",
+"ValidfromDate":"",
+"RuleType":"SC",
+"RulePriority":"1",
+"RuleSecret":""}

@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "require": "^2.4.20"
+    "excel": "^1.0.0",
+    "readline": "^1.3.0",
+    "readline-sync": "^1.4.9",
+    "require": "^2.4.20",
+    "xlsx": "^0.14.2"
   }
 }
