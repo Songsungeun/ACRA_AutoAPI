@@ -36,7 +36,7 @@ for (var i = 1, len = Object.keys(worksheet).length / 3; i <= len; i++) {
     userData.push(obj);
 }
 
-console.log(userData);
+// console.log(userData);
 
 function readRuleData() {
     return new Promise(function (resolve, reject) {
@@ -45,18 +45,21 @@ function readRuleData() {
         })      
     })
 }
+//===============================================================================================
+// 아래부터 보면 됩니다
+// var hardData ={
+//     RuleBlackOrWhite:"1",
+//     RulePriority:"1",
+//     RuleSecret:"",
+//     RuleType:"SC",
+//     UserID:"acrauser",
+//     ValidHours:"111111111111111111111111",
+//     ValidWeekDays:"1111111",
+//     ValidfromDate:"",
+//     ValidtoDate:""
+// } 
 
-var hardData ={
-    RuleBlackOrWhite:"1",
-    ValidWeekDays:"1111111",
-    ValidtoDate:"",
-    ValidHours:"111111111111111111111111",
-    UserID:"acrauser",
-    ValidfromDate:"",
-    RuleType:"SC",
-    RulePriority:"1",
-    RuleSecret:""
-} 
+var hardData ={"RuleType":"SC","RuleBlackOrWhite":"1","RulePriority":"1","UserID":"Admin_ys","RuleSecret":"","ValidfromDate":"","ValidtoDate":"","ValidWeekDays":"1111111","ValidHours":"111111111111111111111111"};
 
 var hardRuleData = JSON.stringify(hardData);
 var stringifyJsonData = { msg: hardRuleData}
@@ -66,11 +69,17 @@ readRuleData().then(function(data) {
     // console.log(data)
 })
 
+var id = "apadmin";
+var pw = "dktnfk!!";
+var encodedAuth = Buffer.from(`${id}:${pw}`).toString('base64');
+console.log(encodedAuth)
+
 var options = {
     hostname: '192.168.100.198',
     port: 8883,
     path: '/accounts/a3d6e739714c422693c8da844e8bde00_YWRt/rules',
-    headers: {Authorization: 'Basic YXBhZG1pbjpka3RuZmshIQ=='},
+    headers: {Authorization: `Basic ${encodedAuth}`},
+    method: 'POST'
 }
 
 bufferData = querystring.stringify(stringifyJsonData);
@@ -100,5 +109,5 @@ var req = http.request(options, function(response) {
 });
 
 req.write(bufferData);
-
+console.log(req)
 req.end();
