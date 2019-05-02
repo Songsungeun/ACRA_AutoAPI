@@ -1,33 +1,54 @@
-var http = require('http');
-var fs = require('fs');
-var xlsx = require('xlsx');
-var querystring = require('querystring');
-var charset = require('charset');
-var iconv = require('iconv-lite');
-var lib = require('./func');
 
+var lib = require('./func');
+var fs = require('fs');
 var log = lib.log();
-var ruleData;
-var id, pw;
-var userData = [];
+var auth = {};
+var ruleData, userData, nodeData, accountData;
 
 console.log("==================================================");
 console.log("예외정책 자동 API 입력을 시작합니다.")
 console.log("==================================================");
 
 lib.readAuth().then(function(authData) {
-    console.log("******************************");
+    console.log("***********************************");
     console.log(authData);
-    console.log("******************************");
+    console.log("***********************************");
+    auth['id'] = authData['id'];
+    auth['pw'] = authData['pw'];
     return lib.confirmAuth();
 }).then(function(result) {
-    if (result) { return lib.readRuleData(); }
+    if (result) { return lib.getRuleData(); }
 }).then(function(readRuleData) {
-    console.log("2")
     log("Rule Loading Complete");
-    log("규칙을 Setting 합니다.")
+    log("규칙을 Setting 합니다.");
     ruleData = readRuleData;
-    console.log(readRuleData)
+    // console.log(ruleData);
+    return lib.getUserData();
+}).then(function(readUserData) {
+    log("User Loading Complete");
+    log("사용자를 Setting 합니다.")
+    userData = readUserData;
+    // console.log(userData);
+    return lib.getNodeKeyList();
+}).then(function(readNodeData) {
+    log("NodeKey Loading Complete");
+    log("NodeKey를 Setting 합니다.");
+    nodeData = readNodeData;
+    // console.log(nodeData);
+    var requestData = {
+        url: '/accounts?filter={"$and":[{},{"NodeKey":"cbb74d180164492b8b8e1601b764a018"}]}',
+        method: 'GET',
+    };
+    return lib.apiRequest(requestData, auth);
+}).then(function(apiData) {
+    var data = {};
+    data = JSON.parse(apiData);
+    var msg = Buffer.from(data.msg, 'base64').toString();
+    console.log(msg)
+    var result = JSON.parse(msg);
+    console.log(result)
+    
+    
     
 })
 
@@ -53,13 +74,9 @@ lib.readAuth().then(function(authData) {
 
 // var hardRuleData = JSON.stringify(hardData);
 // var stringifyJsonData = { msg: hardRuleData}
-// // Rule 읽어오고 UserID를 변경해준다.
-// readRuleData().then(function(data) {
-//     // ruleData = eval("(" + data + ")");
-//     // console.log(data)
-// })
 
-
+// var id="apadmin";
+// var pw = "dktnfk!!"
 // var encodedAuth = Buffer.from(`${id}:${pw}`).toString('base64');
 // console.log(encodedAuth)
 

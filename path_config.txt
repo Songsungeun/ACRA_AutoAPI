@@ -1,0 +1,6 @@
+{
+    "rule_data" : "./store/rule_data.txt",
+    "excel_list" : "/store/user_list.xlsx",
+    "user_sheet" : "user",
+    "node_sheet" : "node"
+}
