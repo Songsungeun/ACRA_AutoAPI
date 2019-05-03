@@ -8,6 +8,7 @@ var charset = require('charset');
 var iconv = require('iconv-lite');
 var date = new Date();
 var path = {};
+
 // 외부 파일 경로 바인딩
 (function() {
     fs.readFile('./path_config.txt', 'utf8', function(err, data) {
@@ -143,10 +144,6 @@ exports.apiRequest = function(requestData, auth, paramData) { // requestData => 
             });
 
             res.on('end', function() {
-                // console.log('data : ' + serverData)
-                // console.log("http statusCode : " + res.statusCode);
-                // console.log('http header : ');
-                // console.log(res.headers)
                 resolve(serverData)
             });
         }
@@ -158,4 +155,61 @@ exports.apiRequest = function(requestData, auth, paramData) { // requestData => 
         // req.write(bufferData);
         req.end();
         })
+}
+
+exports.asyncApiRequest = function(requestData, auth, paramData) { // requestData => JsonData {url, method}
+    var encodedAuth = Buffer.from(`${auth['id']}:${auth['pw']}`).toString('base64');
+
+        var options = {
+            hostname: '192.168.100.198',
+            port: 8883,
+            path: requestData['url'],
+            headers: {Authorization: `Basic ${encodedAuth}`},
+            method: requestData['method']
+        }
+
+        // bufferData = querystring.stringify(stringifyJsonData);
+
+        options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
+        // options['headers']['Content-Length'] = Buffer.byteLength(bufferData);
+        options['headers']['connection'] = 'close';
+
+        function handleResponse(res) {
+            var serverData = '';
+            
+            res.on('data', function (chunk) {
+                var enc = charset(res.headers, serverData);
+                serverData += iconv.decode(chunk, enc);
+            });
+
+            res.on('end', function() {
+                resolve(serverData)
+            });
+        }
+
+        var req = http.request(options, function(response) {
+            handleResponse(response);
+        });
+
+        // req.write(bufferData);
+        req.end();
+    
+}
+
+exports.targetAccountFilter = function(totalAccountList, targetUserList) {
+    var targetAccList = [];
+    
+    for (let i = 0, len = targetUserList.length; i < len; i++) {
+        let obj = {};
+        for(let j = 0, leng = Object.keys(totalAccountList).length; j < leng; j++) {
+            if (targetUserList[i].account === totalAccountList[j].AccountName) {
+                obj['AccountObjectId'] = totalAccountList[j].AccountObjectId;
+                obj['AccountName'] = totalAccountList[j].AccountName;
+                targetAccList.push(obj);
+                break;
+            }
+        }
+    }
+    
+    // resolve(targetAccList);
 }

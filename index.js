@@ -3,7 +3,7 @@ var lib = require('./func');
 var fs = require('fs');
 var log = lib.log();
 var auth = {};
-var ruleData, userData, nodeData, accountData;
+var ruleData, userData, nodeData, targetAccountData;
 
 console.log("==================================================");
 console.log("예외정책 자동 API 입력을 시작합니다.")
@@ -34,9 +34,9 @@ lib.readAuth().then(function(authData) {
     log("NodeKey Loading Complete");
     log("NodeKey를 Setting 합니다.");
     nodeData = readNodeData;
-    // console.log(nodeData);
     var requestData = {
         url: '/accounts?filter={"$and":[{},{"NodeKey":"cbb74d180164492b8b8e1601b764a018"}]}',
+        type: 'accounts',
         method: 'GET',
     };
     return lib.apiRequest(requestData, auth);
@@ -44,11 +44,10 @@ lib.readAuth().then(function(authData) {
     var data = {};
     data = JSON.parse(apiData);
     var msg = Buffer.from(data.msg, 'base64').toString();
-    console.log(msg)
     var result = JSON.parse(msg);
-    console.log(result)
-    
-    
+    return lib.targetAccountFilter(result, userData);
+}).then(function(filteredAccountData) {
+    targetAccountData = filteredAccountData;
     
 })
 
