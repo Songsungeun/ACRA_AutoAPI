@@ -111,7 +111,7 @@ exports.getNodeKeyList = function() {
             let obj = {};
             nodeData.push(worksheet['A'+i]['v'])
         }
-        console.log(nodeData)
+        
         resolve(nodeData);
     })
 }
@@ -128,8 +128,10 @@ exports.apiRequest = function(requestData, auth, paramData) { // requestData => 
             headers: {Authorization: `Basic ${encodedAuth}`},
             method: requestData['method']
         }
-
-        // bufferData = querystring.stringify(stringifyJsonData);
+        if (paramData) {
+            bufferData = querystring.stringify(paramData);
+            options['headers']['Content-Length'] = Buffer.byteLength(bufferData);
+        }
 
         options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         // options['headers']['Content-Length'] = Buffer.byteLength(bufferData);
@@ -152,48 +154,10 @@ exports.apiRequest = function(requestData, auth, paramData) { // requestData => 
             handleResponse(response);
         });
 
+        if (paramData) req.write(bufferData);
         // req.write(bufferData);
         req.end();
         })
-}
-
-exports.asyncApiRequest = function(requestData, auth, paramData) { // requestData => JsonData {url, method}
-    var encodedAuth = Buffer.from(`${auth['id']}:${auth['pw']}`).toString('base64');
-
-        var options = {
-            hostname: '192.168.100.198',
-            port: 8883,
-            path: requestData['url'],
-            headers: {Authorization: `Basic ${encodedAuth}`},
-            method: requestData['method']
-        }
-
-        // bufferData = querystring.stringify(stringifyJsonData);
-
-        options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
-        // options['headers']['Content-Length'] = Buffer.byteLength(bufferData);
-        options['headers']['connection'] = 'close';
-
-        function handleResponse(res) {
-            var serverData = '';
-            
-            res.on('data', function (chunk) {
-                var enc = charset(res.headers, serverData);
-                serverData += iconv.decode(chunk, enc);
-            });
-
-            res.on('end', function() {
-                resolve(serverData)
-            });
-        }
-
-        var req = http.request(options, function(response) {
-            handleResponse(response);
-        });
-
-        // req.write(bufferData);
-        req.end();
-    
 }
 
 exports.targetAccountFilter = function(totalAccountList, targetUserList) {
@@ -210,6 +174,5 @@ exports.targetAccountFilter = function(totalAccountList, targetUserList) {
             }
         }
     }
-    
-    // resolve(targetAccList);
+    return targetAccList
 }
