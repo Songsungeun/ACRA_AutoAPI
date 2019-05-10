@@ -17,6 +17,7 @@ var path = {};
         path['excel_list'] = jsonData['excel_list'];
         path['user_sheet'] = jsonData['user_sheet'];
         path['node_sheet'] = jsonData['node_sheet'];
+        path['ip_rule'] = jsonData['ip_rule_data'];
     })
 })();
 
@@ -67,9 +68,17 @@ exports.confirmAuth = function() {
 exports.getRuleData = function() {
     return new Promise(function (resolve, reject) {
         // log("규칙을 읽어옵니다. 규칙을 변경할 경우 rule_data.txt 파일을 수정해주세요.")
-        fs.readFile(path['rule_data'], 'utf8', function(err, data) {
-            resolve(data);
-        })      
+        let ruleData = {}
+        fs.readFile(path['rule_data'], 'utf8', function(err, token_data) {
+            if (err) console.log(err); 
+            ruleData.token = token_data;
+
+            fs.readFile(path['ip_rule'], 'utf8', function(err, ip_data) {
+                if (err) {console.log(err)};
+                ruleData.ip = ip_data;
+                resolve(ruleData);
+            });
+        });
     })
 }
 
@@ -169,6 +178,7 @@ exports.targetAccountFilter = function(totalAccountList, targetUserList) {
             if (targetUserList[i].account === totalAccountList[j].AccountName) {
                 obj['AccountObjectId'] = totalAccountList[j].AccountObjectId;
                 obj['AccountName'] = totalAccountList[j].AccountName;
+                obj['IP'] = targetUserList[i].ip;
                 targetAccList.push(obj);
                 break;
             }
